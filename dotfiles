@@ -10,59 +10,50 @@ function homepath {
 
 function collect {
 
-	# Files and folders in the home directory
-	files=`find $HOME -maxdepth 1 -name "*"`
-
 	# There is a global versioned white/blacklist and there is a local one
 	whitelist=`cat $HERE/whitelist.txt $HOME/.dotfiles/whitelist.txt 2> /dev/null`
 	blacklist=`cat $HERE/blacklist.txt $HOME/.dotfiles/blacklist.txt 2> /dev/null`
 
-	# Check if the .dotfiles folder is whitelisted. We can't have that
-	if echo "$whitelist" | grep "^.dotfiles$" &> /dev/null; then
-		echo "Error: you can't whitelist the .dotfiles folder"
-		exit
-	fi
-
 	# Create the repo folder if it's not present
-	mkdir $REPO
+	mkdir -p $REPO
 
-	# For each dotfile in the home folder
-	for filepath in $files; do
+	# For each whitelisted file and folder
+	for filepath in $whitelist; do
+
+		# The whitelisted files path is relative
+		# to the home folder
+		filepath=$HOME/$filepath
 
 		# Get the file name without the path
 		filename=`basename $filepath`
 
-		# Check if it is whitelisted. If not ignore it
-		if echo "$whitelist" | grep "^$filename$" &> /dev/null; then
+		# If this is a file: the list will have it's path
+		# If this is a folder: the list will comntain the
+		# folder`s path and it's containg files paths
+		content=`find $filepath`
 
-			# If this is a file: the list will have it's path
-			# If this is a folder: the list will comntain the
-			# folder`s path and it's containg files paths
-			content=`find $filepath`
+		# For each entry in the list
+		for childpath in $content; do
 
-			# For each entry in the list
-			for childpath in $content; do
+			# Get the path relative to the home folder
+			childname=`homepath $childpath`
 
-				# Get the path relative to the home folder
-				childname=`homepath $childpath`
+			# Check if the file is not blacklisted
+			if ! echo "$blacklist" | grep "^$childname$" &> /dev/null; then
+				# If it's a folder we don't need it
+				if [ -f $childpath ]; then
+					# Show the file name for tracing
+					echo $childname
 
-				# Check if the file is not blacklisted
-				if ! echo "$blacklist" | grep "^$childname$" &> /dev/null; then
-					# If it's a folder we don't need it
-					if [ -f $childpath ]; then
-						# Show the file name for tracing
-						echo $childname
+					# If the folder containing the
+					# file does not exit create it
+					mkdir -p "$REPO/`dirname $childname`"
 
-						# If the folder containing the
-						# file does not exit create it
-						mkdir -p "$REPO/`dirname $childname`"
-
-						# Copy the file
-						cp $childpath $REPO/$childname
-					fi
+					# Copy the file
+					cp $childpath $REPO/$childname
 				fi
-			done
-		fi
+			fi
+		done
 	done
 }
 
