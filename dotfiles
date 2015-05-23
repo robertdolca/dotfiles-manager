@@ -13,6 +13,11 @@ function collect {
 	# Create the repo folder if it's not present
 	mkdir -p $REPO
 
+	# Create the local white/blacklist
+	mkdir -p "$HOME/.dotfiles"
+	touch "$HOME/.dotfiles/whitelist.txt"
+	touch "$HOME/.dotfiles/blacklist.txt"
+
 	# There is a global versioned white/blacklist and there is a local one
 	whitelist=`cat $HERE/whitelist.txt $HOME/.dotfiles/whitelist.txt 2> /dev/null`
 	blacklist=`cat $HERE/blacklist.txt $HOME/.dotfiles/blacklist.txt 2> /dev/null`
