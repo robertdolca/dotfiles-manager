@@ -5,12 +5,19 @@ REPO="$HERE/files/"
 
 function homepath {
 	len=`expr ${#HOME} + 1`
-	echo ${1:$len}
+	name=${1:$len}
+	echo $name | sed "s/^\///g"
+}
+
+function repopath {
+	len=`expr ${#REPO}`
+	name=${1:$len}
+	echo $name | sed "s/^\///g"
 }
 
 function log {
 	if [ $VERBOSE -eq 1 ]; then
-		echo $1
+		echo "$1"
 	fi
 }
 
@@ -78,6 +85,47 @@ function collect {
 			# Copy the file
 			if [ $DRY_RUN -eq 0 ]; then
 				cp $homepath $REPO/$filename
+			fi
+		fi
+	done
+}
+
+function deploy {
+	if ! [ -d $REPO ]; then
+		echo "Repo not found"
+	fi
+
+	files=`find_files $REPO`
+
+	# For each entry in the list
+	for repopath in $files; do
+		# Get the path relative to the repo folder
+		filename=`repopath $repopath`
+
+		# Path in the home folder
+		homepath="$HOME/$filename"
+
+		# We don't touch folders
+		if ! [ -d $repopath ] && ! [ -d $homepath ]; then
+
+			# Check if the files are the same
+			if diff $repopath $homepath &> /dev/null; then
+				log "skip   $filename"
+			else
+				if [ -f $homepath ]; then
+					log "update $filename"
+				else
+					log "create $filename"
+				fi
+
+				# If the folder containing the
+				# file does not exit create it
+				mkdir -p "`dirname $homepath`"
+
+				# Replace the file
+				if [ $DRY_RUN -eq 0 ]; then
+					cp $repopath $homepath
+				fi
 			fi
 		fi
 	done
