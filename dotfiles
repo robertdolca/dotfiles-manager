@@ -55,13 +55,13 @@ function collect {
 	files=`find_files $HOME`
 
 	# For each entry in the list
-	for filepath in $files; do
+	for homepath in $files; do
 
 		# Get the path relative to the home folder
-		filename=`homepath $filepath`
+		filename=`homepath $homepath`
 
 		# If it's a folder we don't need it
-		if [ -f $filepath ]; then
+		if [ -f $homepath ]; then
 			# Show the file name for tracing
 			if [ $VERBOSE -eq 1 ]; then
 				echo $filename
@@ -73,7 +73,7 @@ function collect {
 
 			# Copy the file
 			if [ $DRY_RUN -eq 0 ]; then
-				cp $filepath $REPO/$filename
+				cp $homepath $REPO/$filename
 			fi
 		fi
 	done
