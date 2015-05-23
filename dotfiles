@@ -73,10 +73,21 @@ function collect {
 		# Get the path relative to the home folder
 		filename=`homepath $homepath`
 
+		# Path in the home folder
+		repopath="$REPO/$filename"
+
 		# If it's a folder we don't need it
-		if [ -f $homepath ]; then
-			# Show the file name for tracing
-			log $filename
+		if ! [ -d $homepath ] && ! [ -d $repopath ]; then
+
+			# Check if the files are the same
+			if diff $repopath $homepath &> /dev/null; then
+				log "same   $filename"
+			else
+				if [ -f $repopath ]; then
+					log "update $filename"
+				else
+					log "create $filename"
+				fi
 
 				# If this is a dry run we don't change anything
 				if [ $DRY_RUN -eq 0 ]; then
@@ -113,7 +124,7 @@ function deploy {
 
 			# Check if the files are the same
 			if diff $repopath $homepath &> /dev/null; then
-				log "skip   $filename"
+				log "same   $filename"
 			else
 				if [ -f $homepath ]; then
 					log "update $filename"
