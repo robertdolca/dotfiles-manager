@@ -78,13 +78,16 @@ function collect {
 			# Show the file name for tracing
 			log $filename
 
-			# If the folder containing the
-			# file does not exit create it
-			mkdir -p "$REPO/`dirname $filename`"
+				# If this is a dry run we don't change anything
+				if [ $DRY_RUN -eq 0 ]; then
 
-			# Copy the file
-			if [ $DRY_RUN -eq 0 ]; then
-				cp $homepath $REPO/$filename
+					# If the folder containing the
+					# file does not exit create it
+					mkdir -p "$REPO/`dirname $filename`"
+
+					# Copy the file
+					cp $homepath $REPO/$filename
+				fi
 			fi
 		fi
 	done
@@ -118,12 +121,14 @@ function deploy {
 					log "create $filename"
 				fi
 
-				# If the folder containing the
-				# file does not exit create it
-				mkdir -p "`dirname $homepath`"
-
-				# Replace the file
+				# If this is a dry run we don't change anything
 				if [ $DRY_RUN -eq 0 ]; then
+
+					# If the folder containing the
+					# file does not exit create it
+					mkdir -p "`dirname $homepath`"
+
+					# Copy the file
 					cp $repopath $homepath
 				fi
 			fi
