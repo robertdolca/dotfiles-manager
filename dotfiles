@@ -8,15 +8,9 @@ function homepath {
 	echo ${1:$len}
 }
 
-function collect {
-
-	# Create the repo folder if it's not present
-	mkdir -p $REPO
-
-	# Create the local white/blacklist
-	mkdir -p "$HOME/.dotfiles"
-	touch "$HOME/.dotfiles/whitelist.txt"
-	touch "$HOME/.dotfiles/blacklist.txt"
+function find_files {
+	# Get the base path for the search
+	BASE=$1
 
 	# There is a global versioned white/blacklist and there is a local one
 	whitelist=`cat $HERE/whitelist.txt $HOME/.dotfiles/whitelist.txt 2> /dev/null`
@@ -33,19 +27,32 @@ function collect {
 	fi
 
 	# Make a string with all the whitelisted files (separated by space)
-	search=`echo -n "$whitelist" | perl -p -e "s#\n#\" \"$HOME/#"`
-	search="\"$HOME/$search\""
+	search=`echo -n "$whitelist" | perl -p -e "s#\n#\" \"$BASE/#"`
+	search="\"$BASE/$search\""
 
 	# Check if there is anything blacklisted
 	if [ -n "$blacklist" ]; then
 		blacklist=`echo -n "$blacklist" | perl -p -e "s#/\\$##"`
-		ignore=`echo -n "$blacklist" | perl -p -e "s#\n#\" -o -path \"$HOME/#"`
-		ignore="\( -path \"$ignore\" \) -prune -o -print"
+		ignore=`echo -n "$blacklist" | perl -p -e "s#\n#\" -o -path \"$BASE/#"`
+		ignore="\( -path \"$BASE$ignore\" \) -prune -o -print"
 	else
 		ignore=""
 	fi
 
-	files=`eval find $search $ignore 2> /dev/null`
+	eval find $search $ignore 2> /dev/null
+}
+
+function collect {
+
+	# Create the repo folder if it's not present
+	mkdir -p $REPO
+
+	# Create the local white/blacklist
+	mkdir -p "$HOME/.dotfiles"
+	touch "$HOME/.dotfiles/whitelist.txt"
+	touch "$HOME/.dotfiles/blacklist.txt"
+
+	files=`find_files $HOME`
 
 	# For each entry in the list
 	for filepath in $files; do
