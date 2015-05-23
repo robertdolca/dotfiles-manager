@@ -56,23 +56,58 @@ function collect {
 		# If it's a folder we don't need it
 		if [ -f $filepath ]; then
 			# Show the file name for tracing
-			echo $filename
+			if [ $VERBOSE -eq 1 ]; then
+				echo $filename
+			fi
 
 			# If the folder containing the
 			# file does not exit create it
 			mkdir -p "$REPO/`dirname $filename`"
 
 			# Copy the file
-			cp $filepath $REPO/$filename
+			if [ $DRY_RUN -eq 0 ]; then
+				cp $filepath $REPO/$filename
+			fi
 		fi
 	done
 }
 
 function show_help {
-	echo "./dotfiles [collect|deploy]"
+	echo "./dotfiles [collect|deploy] {OPTIONS}"
+	echo "Options"
+	echo -e "\t-d|--dry\tSimulate a run"
+	echo -e "\t-v|--verbose\tShow the name of the files copied"
 }
 
-case $1 in
+# The 1st parameter is the command
+command=$1
+shift
+
+# Default value for options
+DRY_RUN=0
+VERBOSE=0
+
+while [[ $# > 0 ]]; do
+	key="$1"
+	case $key in
+		-d|--dry)
+			DRY_RUN=1
+			VERBOSE=1
+			;;
+		-v|--verbose)
+			VERBOSE=1
+			;;
+		*)
+			echo "Unknown option $key"
+			show_help
+			exit 1
+			;;
+	esac
+	shift
+	shift
+done
+
+case $command in
 	collect)
 		collect
 		;;
