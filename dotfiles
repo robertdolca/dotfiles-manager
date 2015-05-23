@@ -8,6 +8,12 @@ function homepath {
 	echo ${1:$len}
 }
 
+function log {
+	if [ $VERBOSE -eq 1 ]; then
+		echo $1
+	fi
+}
+
 function find_files {
 	# Get the base path for the search
 	BASE=$1
@@ -63,9 +69,7 @@ function collect {
 		# If it's a folder we don't need it
 		if [ -f $homepath ]; then
 			# Show the file name for tracing
-			if [ $VERBOSE -eq 1 ]; then
-				echo $filename
-			fi
+			log $filename
 
 			# If the folder containing the
 			# file does not exit create it
