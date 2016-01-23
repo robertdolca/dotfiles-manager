@@ -9,7 +9,7 @@ Options
         -v|--verbose    Show the name of the files copied
 ```
 
-For making sure that only the files that you want are copied it has a global whitelist and a locel one. The global blacklist resides in the repository and the local one is in your home folder `~/.dotfiles/whitelist.txt`. You need to whitelist the folders or the files that you want to copy. The purpose of the local whitelist is to allow to backup certain files only for specific computers.
+For making sure that only the files that you want are copied it has a global whitelist and a local one. The global blacklist resides in the repository and the local one is in your home folder `~/.dotfiles/whitelist.txt`. You need to whitelist the folders or the files that you want to copy. The purpose of the local whitelist is to allow to backup certain files only for specific computers.
 
 The blacklist is used to ignore files and folders inside the whitelisted folders. It has a globbing feature to ignore files and folders like this `.ssh/id_rsa*`. 
 
